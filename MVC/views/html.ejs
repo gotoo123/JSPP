@@ -1,0 +1,10 @@
+<%- include('top') %>
+  <div id="app">
+    <h1><%= title %></h1>
+    <ul>
+      <% list.map(item => { %>
+        <%- include('listItem', {item}) %>
+      <% }) %>
+    </ul>
+  </div>
+<%- include('bottom') %>
