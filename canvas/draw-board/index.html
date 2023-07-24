@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+  
+  <canvas id="canvas"></canvas>
+  <div class="tool-bar">
+    <p>
+      <span>颜色选择：</span>
+      <input type="color" id="colorInput" >
+    </p>
+    <p>
+      <span>线条粗度：</span>
+      <input type="range" min="1" max="30" value="1" step="1" id="lineWidthRange">
+      <span id="lineWidthValue">1</span>
+    </p>
+    <p>
+      <span>清除画布：</span>
+      <button id="clearAllBtn">CLEAR</button>
+    </p>
+  </div>
+
+<!--  <script src="./demo.js" type="module"></script>-->
+  <script src="./index.js" type="module"></script>
+</body>
+</html>
