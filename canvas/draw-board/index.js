@@ -5,6 +5,24 @@ const oColorInput = document.querySelector('#colorInput');
 const oLineWidthRange = document.querySelector('#lineWidthRange');
 const oLineWidthValue = document.querySelector('#lineWidthValue');
 const oClearAllBtn = document.querySelector('#clearAllBtn')
+const oEraserBtn = document.querySelector('#eraserBtn');
+const oEraserLineWidthRange = document.querySelector('#eraserLineWidthRange');
+const oEraserLineWidthValue = document.querySelector('#eraserLineWidthValue');
+const oEraserCircle = document.querySelector('#eraserCircle');
+
+oEraserCircle.setVisible = function(visible) {
+  this.style.display = visible ? 'block' : 'none';
+}
+
+oEraserCircle.setSize = function(size) {
+  this.style.width = size + 'px';
+  this.style.height = size + 'px';
+}
+
+oEraserCircle.setPosition = function(x, y) {
+  this.style.left = x - this.offsetWidth / 2 + 'px';
+  this.style.top = y - this.offsetHeight / 2 + 'px';
+}
 
 const clientWidth = document.documentElement.clientWidth;
 const clientHeight = document.documentElement.clientHeight;
@@ -16,11 +34,18 @@ oCan.height = clientHeight;
 const CANVAS_VALUES = {
   DEFAULT_COLOR: '#000',
   DEFAULT_LINE_WIDTH: 1,
-  DEFAULT_LINE_STYLE: 'round'
+  DEFAULT_LINE_STYLE: 'round',
+  ERASER_COLOR: '#fff',
+}
+
+const KEYBOARD = {
+  UNDO: 'z',
+  REDO: 'd'
 }
 
 const state = {
-  initPos: null
+  initPos: null,
+  eraserStatus: false
 }
 
 ctx.setColor = function(color) {
@@ -36,7 +61,6 @@ ctx.setLineStyle = function(style) {
 ctx.setLineWidth = function(width) {
   this.lineWidth = width;
 }
-
 
 function drawPoint(x, y) {
   ctx.beginPath();
@@ -67,14 +91,26 @@ function handleCanvasMouseDown(e) {
 
   oCan.addEventListener('mousemove', handleCanvasMouseMove, false);
   oCan.addEventListener('mouseup', handleCanvasMouseUp, false);
+
+  if(state.eraserStatus) {
+    oEraserCircle.setVisible(true);
+    oEraserCircle.setPosition(x1, y1);
+    oEraserCircle.addEventListener('mouseup', handleEraserCircleMouseUp, false);
+  }
 }
 
+function handleEraserCircleMouseUp() {
+  oEraserCircle.setVisible(false);
+  oEraserCircle.removeEventListener('mouseup', handleEraserCircleMouseUp, false);
+  handleCanvasMouseUp();
+}
 
 function handleCanvasMouseMove(e) {
   const x2 = e.clientX;
   const y2 = e.clientY;
 
   drawLine({...state.initPos, x2, y2});
+  state.eraserStatus && oEraserCircle.setPosition(x2, y2);
   state.initPos = {x1: x2, y1: y2}
 }
 
@@ -89,11 +125,31 @@ function bindEvent() {
   oColorInput.addEventListener('input', handleColorInput, false);
   oLineWidthRange.addEventListener('input', handleLineWidthRangeInput, false);
   oClearAllBtn.addEventListener('click', handleClearAllBtnClick, false);
+  oEraserBtn.addEventListener('click', handleEraserBtnClick, false);
+  oEraserLineWidthRange.addEventListener('input', handleEraserLineWidthRangeInput, false);
+}
+
+function handleEraserLineWidthRangeInput() {
+  const lineWidth = this.value;
+  oEraserLineWidthValue.textContent = lineWidth;
+  oEraserCircle.setSize(lineWidth);
+  state.eraserStatus && ctx.setLineWidth(lineWidth);
+}
+
+function handleEraserBtnClick() {
+  const lineWidthValue = oEraserLineWidthRange.value;
+  state.eraserStatus = true;
+  ctx.setColor(CANVAS_VALUES.ERASER_COLOR);
+  ctx.setLineWidth(lineWidthValue);
+  oEraserCircle.setSize(lineWidthValue);
 }
 
 function handleColorInput() {
+  oEraserCircle.setVisible(false);
   const color = this.value;
   ctx.setColor(color);
+  ctx.setLineWidth(oLineWidthRange.value);
+  state.eraserStatus = false;
 }
 
 function handleLineWidthRangeInput() {
